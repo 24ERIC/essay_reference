@@ -8,7 +8,8 @@ from webbrowser import BackgroundBrowser
 from click import command
 from numpy import size
 import pandas as pd
-from time import strftime
+import time
+import csv
 
 
 frame = tk.Tk()
@@ -65,7 +66,7 @@ reference_type_input["menu"].config(bg="black", fg="white")
 reference_type_input.grid(column=3, row=0)
 
 
-search_textBox = tk.Text(width=180, height=35, bg="black", fg="cyan", insertbackground="cyan")
+search_textBox = tk.Text(width=300, height=35, bg="black", fg="cyan", insertbackground="cyan")
 search_textBox.place(x=10,y=200)
 
 
@@ -86,6 +87,18 @@ def get_apa():
     apa = ""
     return apa
 
+def clear_entry():
+    title_input.delete(0,tk.END)
+    year_input.delete(0,tk.END)
+    lastname_input.delete(0,tk.END)
+    firstname_input.delete(0,tk.END)
+    content_input.delete(0,tk.END)
+    # reference_type_input
+    description_input.delete(0,tk.END)
+    authority_input.delete(0,tk.END)
+    keyword_input.delete(0,tk.END)
+    publisher_input.delete(0,tk.END)
+
 def add():
     """Add data into Reference_Note.csv file.
     """
@@ -100,29 +113,30 @@ def add():
     keyword = keyword_input.get()
     publisher = publisher_input.get()
     # 
-    create_time = str(strftime("%Y-%m-%d %H:%M:%S"))
-    modified_time = str(strftime("%Y-%m-%d %H:%M:%S"))
+    create_time = str(time.strftime("%Y-%m-%d %H:%M:%S"))
+    modified_time = str(time.strftime("%Y-%m-%d %H:%M:%S"))
     apa = get_apa()
     
     with open("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv", 'a') as f:
         row_data = "\n"+ title+", "+year+", "+lastname+", "+firstname+", "+content+", "+reference_type+", "+description+", "+authority+", "+keyword+", "+publisher+", "+create_time+", "+modified_time+", "+apa
         f.write(row_data)
+        
+        
+    successfulLabel = tk.Label(frame, text = "Successful", bg="black", fg="cyan", font=BOLD)
+    successfulLabel.grid(column=6, row=3)
+    successfulLabel.after(1000, successfulLabel.destroy)
     
-    title_input.delete(0,tk.END)
-    year_input.delete(0,tk.END)
-    lastname_input.delete(0,tk.END)
-    firstname_input.delete(0,tk.END)
-    content_input.delete(0,tk.END)
-    # reference_type_input
-    description_input.delete(0,tk.END)
-    authority_input.delete(0,tk.END)
-    keyword_input.delete(0,tk.END)
-    publisher_input.delete(0,tk.END)
+    clear_entry()
     
-    successLabel = tk.Label(frame, text = "Successful", bg="black", fg="cyan", font=BOLD).grid(column=6, row=3)
+    # clear data and insert data just added in search_textBox
+    search_textBox.delete('1.1',tk.END)
+    df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv")
+    pd.set_option('display.max_columns', None)
     
-    
+    search_textBox.insert(tk.END, df[-1:])
+    pass
 
+    
 def search():
     """Search data in the data set
     """
@@ -137,15 +151,20 @@ def search():
     keyword = keyword_input.get()
     publisher = publisher_input.get()
     # 
-    create_time = str(strftime("%Y-%m-%d %H:%M:%S"))
-    modified_time = str(strftime("%Y-%m-%d %H:%M:%S"))
+    create_time = str(time.strftime("%Y-%m-%d %H:%M:%S"))
+    modified_time = str(time.strftime("%Y-%m-%d %H:%M:%S"))
     apa = get_apa()
     
     
     df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv")
-    search_textBox.insert(tk.END, df)
-    pass
-
+    # pd.set_option('display.max_columns', None)
+    search_textBox.delete('1.1',tk.END)
+    
+    row_data_key = ["title","year","lastname","firstname","content","reference_type","description","authority","keyword","publisher"]
+    row_data_value = [title, year, lastname, firstname, content, reference_type, description, authority, keyword, publisher]
+    for key, value in zip(row_data_key, row_data_value):
+        search_textBox.insert(tk.END, df.loc[df[::-1].loc[df[key] == value].index[:]])
+    clear_entry()
 
 # add button
 addButton = tk.Button(frame, text = "Add", command = add, bg="black", fg="orange", font=BOLD).grid(column=6, row=2)
