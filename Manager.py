@@ -1,3 +1,4 @@
+from optparse import Option
 import tkinter as tk
 from tkinter.font import BOLD
 import pandas as pd
@@ -50,14 +51,16 @@ class Manager:
         self.content_input = tk.Entry(font=BOLD, background="black",fg="white", insertbackground="cyan")
         self.content_input.grid(column=3, row=4)
 
-
-        self.reference_type_input = tk.OptionMenu(frame, tk.StringVar(),
-                                            "Book = lastname, Initials. (year). title. edition. publisher.", 
-                                            "Ebook = lastname, Initials. (Year). title. publisher. URL ", 
-                                            "online article = Last name, Initials. (Year, Month Day). Article title. Publication Name. URL")
+            
+        Options = tk.StringVar()
+        self.reference_type_input = tk.OptionMenu(frame, Options,
+                                            "Book = lastname, Initials. (y). title. publisher.", 
+                                            "Ebook = lastname, Initials. (y). title. publisher. URL.", 
+                                            "online article = lastname, Initials. (Y, M D). title. publisher. URL", command=self.callback)
         self.reference_type_input.config(font=BOLD, bg="black",fg="white", width=17)
         self.reference_type_input["menu"].config(bg="black", fg="white")
         self.reference_type_input.grid(column=3, row=0)
+        Options.set("hello")
 
 
 
@@ -70,6 +73,9 @@ class Manager:
 
         self.searchButton = tk.Button(self.frame, text = "Search", command = self.search, bg="black", fg="orange", font=BOLD).grid(column=6, row=4)
     
+    def callback(self,selection):
+        self.reference_type = selection
+        print(self.reference_type == "Book = lastname, Initials. (y). title. publisher.")
     
     def assign_value(self):
         """[summary]
@@ -80,6 +86,7 @@ class Manager:
         self.publisher= self.publisher_input.get()
         self.URL = self.URL_input.get()
         self.reference_type = tk.StringVar().get()
+        print(tk.StringVar().get())
         self.keyword = self.keyword_input.get()
         self.page = self.page_input.get()
         self.authority = self.authority_input.get()
@@ -138,7 +145,7 @@ class Manager:
         # clear data and insert data just added in search_textBox
         self.search_textBox.delete('1.1',tk.END)
         df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv")
-        pd.set_option('display.max_columns', None)
+        # pd.set_option('display.max_columns', None)
         
         self.search_textBox.insert(tk.END, df[-1:])
 
@@ -148,7 +155,7 @@ class Manager:
         """
         self.assign_value()
         
-        df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv")
+        df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv", names=["name", "year", "title", "publisher", "URL", "reference_type", "keyword", "page", "authority", "content", "create_tim", "modified_tim", "apa_referenc", "apa_intext_citation"])
         # pd.set_option('display.max_columns', None)
         self.search_textBox.delete('1.1',tk.END)
         
@@ -162,9 +169,9 @@ class Manager:
                              "page", 
                              "authority", 
                              "content", 
-                             "create_tim", 
-                             "modified_tim", 
-                             "apa_referenc", 
+                             "create_time", 
+                             "modified_time", 
+                             "apa_reference", 
                              "apa_intext_citation"
                               ]
         self.row_data_value = [self.name, 
@@ -182,17 +189,69 @@ class Manager:
                                self.apa_reference, 
                                self.apa_intext_citation
                                ] 
-        for key, value in zip(self.row_data_key, self.row_data_value):
-            self.clear_entry()
-            self.search_textBox.insert(tk.END, df.loc[df[::-1].loc[df[key] == value].index[:]])
+        self.clear_entry()
+        if self.name != "":
+            self.search_textBox.insert(tk.END, df.loc[df[::-1].loc[df["value"] == self.value].index[:]])
+        if self.year != "":
+            self.search_textBox.insert(tk.END, df[df["year"].str.contains(self.year)])
+        if self.title != "":
+            self.search_textBox.insert(tk.END, df[df["title"].str.contains(self.title)])
+        if self.publisher != "":
+            self.search_textBox.insert(tk.END, df[df["publisher"].str.contains(self.publisher)])
+        if self.URL != "":
+            self.search_textBox.insert(tk.END, df[df["URL"].str.contains(self.URL)])
+        if self.reference_type != "":
+            self.search_textBox.insert(tk.END, df[df["reference_type"].str.contains(self.reference_type)])
+        if self.keyword != "":
+            self.search_textBox.insert(tk.END, df[df["keyword"].str.contains(self.keyword)])
+        if self.page != "":
+            self.search_textBox.insert(tk.END, df[df["page"].str.contains(self.page)])
+        if self.authority != "":
+            self.search_textBox.insert(tk.END, df[df["authority"].str.contains(self.authority)])
+        if self.content != "":
+            self.search_textBox.insert(tk.END, df[df["content"].str.contains(self.content)])
+        if self.create_time != "":
+            self.search_textBox.insert(tk.END, df[df["create_time"].str.contains(self.create_time)])
+        if self.modified_time != "":
+            self.search_textBox.insert(tk.END, df[df["modified_time"].str.contains(self.modified_time)])
+        if self.apa_reference != "":
+            self.search_textBox.insert(tk.END, df[df["apa_reference"].str.contains(self.apa_reference)])
+        if self.apa_intext_citation != "":
+            self.search_textBox.insert(tk.END, df[df["apa_intext_citati"].str.contains(self.apa_intext_citati)])
+
 
     
     def get_apa(self):
-        
-        
-        self.apa_reference = "apar"
-        self.apa_intext_citation = "apa"
-
+        apa_lastname = self.name.split(" ")[-1]
+        apa_name = self.name.split(" ")[::-1][0] + "; " + self.name.split(" ")[::-1][1] + ". "
+        apa_year = self.year.split(" ")[0]
+        if len(self.year.split(" ")) != 0:
+            apa_month_day = self.year.split(" ")[1] + " " + self.year.split(" ")[2]
+            
+        apa_title = self.title
+        apa_publisher = self.publisher + "."
+        apa_URL = self.URL + "."
+        print(apa_lastname, apa_name, apa_year, apa_month_day, apa_title, apa_publisher, apa_URL)
+        print(self.reference_type)
+        print("Book = lastname, Initials. (y). title. publisher.")
+        if self.reference_type == "Book = lastname, Initials. (y). title. publisher.":
+        # if True:
+            self.apa_reference = apa_name + "(" + apa_year + "). " + apa_title + ". " + apa_publisher
+            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
+            print(self.apa_reference)
+            print(self.apa_intext_citation)
+            
+        elif self.reference_type == "Ebook = lastname, Initials. (y). title. publisher. URL.":
+            self.apa_reference = apa_name + "(" + apa_year + "). " + apa_title + ". " + apa_publisher + " " + apa_URL
+            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
+            
+        elif self.reference_type == "online article = lastname, Initials. (Y, M D). title. publisher. URL":
+            self.apa_reference = apa_name + "(" + apa_year + " " + apa_month_day + "). " + apa_title + ". " + apa_publisher + " " + apa_URL
+            self.apa_intext_citation = "(" + apa_lastname + ";" + apa_month_day + "; " + apa_year + ")"
+            
+        else:
+            self.apa_reference = ""
+            self.apa_intext_citation = ""
 
 
 
@@ -205,3 +264,46 @@ if __name__ == "__main__":
     frame.configure(background="black")
     
     frame.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
