@@ -54,9 +54,9 @@ class Manager:
             
         Options = tk.StringVar()
         self.reference_type_input = tk.OptionMenu(frame, Options,
-                                            "Book = lastname, Initials. (y). title. publisher.", 
-                                            "Ebook = lastname, Initials. (y). title. publisher. URL.", 
-                                            "online article = lastname, Initials. (Y, M D). title. publisher. URL", command=self.callback)
+                                            "Book = lastname; Initials. (y). title. publisher.", 
+                                            "Ebook = lastname; Initials. (y). title. publisher. URL.", 
+                                            "online article = lastname; Initials. (Y; M D). title. publisher. URL.", command=self.callback)
         self.reference_type_input.config(font=BOLD, bg="black",fg="white", width=17)
         self.reference_type_input["menu"].config(bg="black", fg="white")
         self.reference_type_input.grid(column=3, row=0)
@@ -73,9 +73,15 @@ class Manager:
 
         self.searchButton = tk.Button(self.frame, text = "Search", command = self.search, bg="black", fg="orange", font=BOLD).grid(column=6, row=4)
     
+    
     def callback(self,selection):
+        """[summary]
+
+        Args:
+            selection ([type]): [description]
+        """
         self.reference_type = selection
-        print(self.reference_type == "Book = lastname, Initials. (y). title. publisher.")
+    
     
     def assign_value(self):
         """[summary]
@@ -85,8 +91,6 @@ class Manager:
         self.title = self.title_input.get()
         self.publisher= self.publisher_input.get()
         self.URL = self.URL_input.get()
-        self.reference_type = tk.StringVar().get()
-        print(tk.StringVar().get())
         self.keyword = self.keyword_input.get()
         self.page = self.page_input.get()
         self.authority = self.authority_input.get()
@@ -110,13 +114,12 @@ class Manager:
         self.page_input.delete(0,tk.END)
         self.authority_input.delete(0,tk.END)
         self.content_input.delete(0,tk.END)
-
+        
 
     def add(self):
         """Add data into Reference_Note.csv file.
         """
         self.assign_value()
-        
         with open("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv", 'a') as f:
             self.row_data = "\n"+ \
                             self.name + ", " + \
@@ -124,7 +127,7 @@ class Manager:
                             self.title + ", " + \
                             self.publisher + ", " + \
                             self.URL + ", " + \
-                            self.reference_type + ", " + \
+                            self.reference_type.split(" = ")[0] + ", " + \
                             self.keyword + ", " + \
                             self.page + ", " + \
                             self.authority + ", " + \
@@ -222,37 +225,52 @@ class Manager:
 
     
     def get_apa(self):
+        """[summary]
+        """
+        self.name.replace(",", ";")
+        self.year.replace(",", ";")
+        self.title.replace(",", ";")
+        self.publisher.replace(",", ";")
+        self.URL.replace(",", ";")
+        
+        self.apa_reference = ""
+        self.apa_intext_citation = ""
         apa_lastname = self.name.split(" ")[-1]
-        apa_name = self.name.split(" ")[::-1][0] + "; " + self.name.split(" ")[::-1][1] + ". "
-        apa_year = self.year.split(" ")[0]
-        if len(self.year.split(" ")) != 0:
-            apa_month_day = self.year.split(" ")[1] + " " + self.year.split(" ")[2]
-            
+        apa_firstname = self.name.split(" ")[::-1][0]
+        if len(self.year) == 4:
+            apa_year = self.year.split(" ")[0]
+        elif 8 <= len(self.year) <= 10:
+            apa_month = self.year.split(" ")[1] 
+            apa_day = self.year.split(" ")[2]
         apa_title = self.title
-        apa_publisher = self.publisher + "."
-        apa_URL = self.URL + "."
-        print(apa_lastname, apa_name, apa_year, apa_month_day, apa_title, apa_publisher, apa_URL)
-        print(self.reference_type)
-        print("Book = lastname, Initials. (y). title. publisher.")
-        if self.reference_type == "Book = lastname, Initials. (y). title. publisher.":
-        # if True:
-            self.apa_reference = apa_name + "(" + apa_year + "). " + apa_title + ". " + apa_publisher
-            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
-            print(self.apa_reference)
-            print(self.apa_intext_citation)
-            
-        elif self.reference_type == "Ebook = lastname, Initials. (y). title. publisher. URL.":
-            self.apa_reference = apa_name + "(" + apa_year + "). " + apa_title + ". " + apa_publisher + " " + apa_URL
-            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
-            
-        elif self.reference_type == "online article = lastname, Initials. (Y, M D). title. publisher. URL":
-            self.apa_reference = apa_name + "(" + apa_year + " " + apa_month_day + "). " + apa_title + ". " + apa_publisher + " " + apa_URL
-            self.apa_intext_citation = "(" + apa_lastname + ";" + apa_month_day + "; " + apa_year + ")"
-            
-        else:
-            self.apa_reference = ""
-            self.apa_intext_citation = ""
+        apa_publisher = self.publisher
+        apa_URL = self.URL
+        
 
+        if self.reference_type == "Book = lastname; Initials. (y). title. publisher.":
+            self.apa_reference = apa_lastname + "; " + apa_firstname + ". " + \
+                                 "(" + apa_year + "). " + \
+                                 apa_title + ". " + \
+                                 apa_publisher + "."
+            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
+            
+        elif self.reference_type == "Ebook = lastname; Initials. (y). title. publisher. URL.":
+            self.apa_reference = apa_lastname + "; " + apa_firstname + ". " + \
+                                 "(" + apa_year + "). " + \
+                                 apa_title + ". " + \
+                                 apa_publisher + ". " + \
+                                 apa_URL + "."
+            self.apa_intext_citation = "(" + apa_lastname + "; " + apa_year + ")"
+            
+        elif self.reference_type == "online article = lastname; Initials. (Y; M D). title. publisher. URL.":
+            self.apa_reference = apa_lastname + "; " + apa_firstname + ". " + \
+                                 "(" + apa_year + "; " + apa_month + " " + apa_day + "). " + \
+                                 apa_title + ". " + \
+                                 apa_publisher + ". " + \
+                                 apa_URL + "."
+            self.apa_intext_citation = "(" + apa_lastname + ";" + apa_month + " " + apa_day + "; " + apa_year + ")"
+
+    
 
 
 if __name__ == "__main__":
@@ -264,46 +282,3 @@ if __name__ == "__main__":
     frame.configure(background="black")
     
     frame.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
