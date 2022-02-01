@@ -7,4 +7,4 @@ User should have python, tkinter, pandas ... and essay_reference.csv file in ord
 ### * No test file
 ### * No descirption 
 ### * No corner case cared
-### * Search moethod not working properly
+### * Search method not working properly
