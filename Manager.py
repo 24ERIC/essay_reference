@@ -120,7 +120,7 @@ class Manager:
         """Add data into Reference_Note.csv file.
         """
         self.assign_value()
-        with open("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv", 'a') as f:
+        with open("Reference_Note.csv", 'a') as f:
             self.row_data = "\n"+ \
                             self.name + ", " + \
                             self.year + ", " + \
@@ -147,7 +147,7 @@ class Manager:
         
         # clear data and insert data just added in search_textBox
         self.search_textBox.delete('1.1',tk.END)
-        df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv")
+        df = pd.read_csv("Reference_Note.csv")
         # pd.set_option('display.max_columns', None)
         
         self.search_textBox.insert(tk.END, df[-1:])
@@ -158,7 +158,7 @@ class Manager:
         """
         self.assign_value()
         
-        df = pd.read_csv("/home/eric/Documents/__testing__  essay_reference/Reference_Note.csv", names=["name", "year", "title", "publisher", "URL", "reference_type", "keyword", "page", "authority", "content", "create_tim", "modified_tim", "apa_referenc", "apa_intext_citation"])
+        df = pd.read_csv("Reference_Note.csv", names=["name", "year", "title", "publisher", "URL", "reference_type", "keyword", "page", "authority", "content", "create_tim", "modified_tim", "apa_referenc", "apa_intext_citation"])
         # pd.set_option('display.max_columns', None)
         self.search_textBox.delete('1.1',tk.END)
         
