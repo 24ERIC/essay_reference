@@ -237,9 +237,8 @@ class Manager:
         self.apa_intext_citation = ""
         apa_lastname = self.name.split(" ")[-1]
         apa_firstname = self.name.split(" ")[::-1][0]
-        if len(self.year) == 4:
-            apa_year = self.year.split(" ")[0]
-        elif 8 <= len(self.year) <= 10:
+        apa_year = self.year.split(" ")[0]
+        if 8 <= len(self.year) <= 10:
             apa_month = self.year.split(" ")[1] 
             apa_day = self.year.split(" ")[2]
         apa_title = self.title
